@@ -16,7 +16,7 @@ Monbureaunumerique Auth est une librairie python qui permet de se connecter a mo
 
 ## Installation
 
-Monbureaunumerique Auth requires [Python](https://www.python.org/) v10+ to run.
+Monbureaunumerique Auth requires [Python](https://www.python.org/) to run.
 
 Installer les dependances et importer la librairies .
 Exemple : 
