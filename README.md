@@ -8,11 +8,16 @@ Monbureaunumerique Auth est une librairie python qui permet de se connecter a mo
 
 - Rapide
 - Opensource
-- ✨Captcha Bypass
 
 ## Features
 
 - AutoConnect
+
+## Security Notes
+
+- Credentials should be provided via environment variables, not hardcoded
+- Always use HTTPS for credential transmission
+- Never commit passwords or sensitive data to version control
 
 ## Installation
 
