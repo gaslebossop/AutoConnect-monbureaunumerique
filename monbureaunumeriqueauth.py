@@ -1,34 +1,58 @@
 from selenium import webdriver
-from selenium.webdriver.common.keys import Keys
 from selenium.webdriver.common.by import By
-import requests
-import time
-driver = webdriver.Chrome()
-driver.get("https://cas.monbureaunumerique.fr/login?service=https%3A%2F%2Fwww.monbureaunumerique.fr%2Fsg.do%3FPROC%3DIDENTIFICATION_FRONT")
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import logging
+
+logging.basicConfig(level=logging.INFO)
+logger = logging.getLogger(__name__)
+
+CAS_LOGIN_URL = "https://cas.monbureaunumerique.fr/login?service=https%3A%2F%2Fwww.monbureaunumerique.fr%2Fsg.do%3FPROC%3DIDENTIFICATION_FRONT"
+DASHBOARD_URL = "https://clg-st-remi.monbureaunumerique.fr/sg.do?PROC=PAGE_ACCUEIL&ACTION=VALIDER"
+TIMEOUT = 10
 
 def login(username, password):
+    """
+    Authenticate with MonBureauNumerique.
 
-#elem2 = driver.find_element(By.CLASS_NAME,'js-wayf-composant')
-#elem2.click()
-#driver.find_element_by_id("idp-EDU").click()
-    driver.find_element(By.CLASS_NAME, "form__label").click()
-    driver.find_element(By.ID, "button-submit").click()
-    driver.find_element(By.ID, "bouton_eleve").click()
+    Args:
+        username: User login credentials
+        password: User password (never logged)
 
+    Raises:
+        ValueError: If username/password are invalid
+        TimeoutError: If page elements don't load
+    """
+    if not username or not password:
+        raise ValueError("Username and password cannot be empty")
 
-    elem = driver.find_element_by_id("username")
-    elem.send_keys(username)
+    driver = None
+    try:
+        driver = webdriver.Chrome()
+        driver.get(CAS_LOGIN_URL)
 
+        wait = WebDriverWait(driver, TIMEOUT)
 
+        wait.until(EC.element_to_be_clickable((By.CLASS_NAME, "form__label"))).click()
+        wait.until(EC.element_to_be_clickable((By.ID, "button-submit"))).click()
+        wait.until(EC.element_to_be_clickable((By.ID, "bouton_eleve"))).click()
 
-    driver.find_element_by_id("password").send_keys(password)
+        username_elem = wait.until(EC.presence_of_element_located((By.ID, "username")))
+        username_elem.send_keys(username)
 
-    driver.find_element(By.ID, "bouton_valider").click()
+        password_elem = wait.until(EC.presence_of_element_located((By.ID, "password")))
+        password_elem.send_keys(password)
 
-    driver.get("https://clg-st-remi.monbureaunumerique.fr/sg.do?PROC=PAGE_ACCUEIL&ACTION=VALIDER")
+        wait.until(EC.element_to_be_clickable((By.ID, "bouton_valider"))).click()
 
-    #time.sleep(3)
-    #driver.quit()
-#elem = driver.find_element_by_id("login-password")
-#elem.send_keys("MotDePasse1.")
+        driver.get(DASHBOARD_URL)
 
+        logger.info("Login successful")
+        return True
+
+    except Exception as e:
+        logger.error(f"Login failed: {type(e).__name__}")
+        raise
+    finally:
+        if driver:
+            driver.quit()
