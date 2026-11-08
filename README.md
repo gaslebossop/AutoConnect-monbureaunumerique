@@ -21,10 +21,24 @@ Monbureaunumerique Auth requires [Python](https://www.python.org/) to run.
 Installer les dependances et importer la librairies .
 Exemple : 
 
-```example
-from monbureaunumeriqueauth import login
-login("username","password")
+```python
+import os
+from monbureaunumeriqueauth import login, close_driver
+
+# Load credentials from environment variables (secure approach)
+username = os.getenv('MONBUREAU_USERNAME')
+password = os.getenv('MONBUREAU_PASSWORD')
+
+if not username or not password:
+    raise ValueError("Please set MONBUREAU_USERNAME and MONBUREAU_PASSWORD environment variables")
+
+login(username, password)
+
+# Always cleanup the driver when done
+close_driver()
 ```
+
+**Security Note**: Never hardcode credentials in your code. Use environment variables or a secure configuration file instead.
 
 
 
